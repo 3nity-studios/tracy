@@ -40,7 +40,7 @@ jobs:
     - uses: actions/checkout@v4
     - name: Profiler GUI
       run: |
-        cmake -B profiler/build -S profiler -DCMAKE_BUILD_TYPE=Release -DLEGACY=ON -DGLFW_BUILD_WAYLAND=OFF -DGIT_REV=${{ github.sha }}
+        cmake -B profiler/build -S profiler -DCMAKE_BUILD_TYPE=Release -DLEGACY=ON -DGLFW_BUILD_WAYLAND=OFF -DCMAKE_CXX_STANDARD=20 -DGIT_REV=${{ github.sha }}
         cmake --build profiler/build --parallel
     - name: Update utility
       run: |
