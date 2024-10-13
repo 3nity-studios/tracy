@@ -5,23 +5,31 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
+  workflow_dispatch:
+  
 
 env:
   CPM_SOURCE_CACHE: ${{ github.workspace }}/cpm-cache
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-    container: archlinux:base-devel
+    runs-on: ubuntu-20.04
     steps:
+    - name: Install CMake
+      uses: ssrobins/install-cmake@v1
+      with:
+        version: 3.30.2
     - name: Install dependencies
-      run: pacman -Syu --noconfirm && pacman -S --noconfirm --needed freetype2 debuginfod wayland dbus libxkbcommon libglvnd meson cmake git wayland-protocols nodejs
+      uses: awalsh128/cache-apt-pkgs-action@latest
+      with:
+        packages: freetype2 debuginfod dbus libdbus-1-dev libxinerama-dev libxkbcommon libglvnd meson git nodejs libx11-dev libxrandr-dev libxcursor-dev libxi-dev libgl1-mesa-dev libudev-dev libfreetype-dev libvorbis-dev libflac-dev
+        version: 1.0
     - name: Trust git repo
       run: git config --global --add safe.directory '*'
     - uses: actions/checkout@v4
     - name: Profiler GUI
       run: |
-        cmake -B profiler/build -S profiler -DCMAKE_BUILD_TYPE=Release -DGIT_REV=${{ github.sha }}
+        cmake -B profiler/build -S profiler -DCMAKE_BUILD_TYPE=Release -DLEGACY=ON -DGLFW_BUILD_WAYLAND=OFF -DGIT_REV=${{ github.sha }}
         cmake --build profiler/build --parallel
     - name: Update utility
       run: |
@@ -76,5 +84,5 @@ jobs:
         strip bin/tracy-*
     - uses: actions/upload-artifact@v4
       with:
-        name: arch-linux
+        name: ubuntu-focal
         path: bin
